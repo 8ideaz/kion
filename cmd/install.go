@@ -12,7 +12,7 @@ import (
 
 // installCmd represents the install command
 var installCmd = &cobra.Command{
-	Use:   "install",
+	Use:   "install <package-name>",
 	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
@@ -21,10 +21,21 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		packageName := args[0]
+		var packageName string
+		if len(args) > 0 {
+			packageName = args[0]
+			if packageName == "" {
+				err := fmt.Errorf("no package name supplied")
+				return err
+			}
+		} else {
+			err := fmt.Errorf("no package name supplied")
+			return err
+		}
 		err := manager.Install(packageName)
 		if err != nil {
 			fmt.Printf("Failed to install %s: %v\n", packageName, err)
+			err = fmt.Errorf("failed to install %s: %w", packageName, err)
 			return err
 		}
 		return nil
